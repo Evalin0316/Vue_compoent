@@ -10,7 +10,7 @@ createApp({
   data() {
     return {
       products: [],
-      tempProduct: {
+      tempProduct: { //調整資料使用的準備結構
         imagesUrl: [],
       },
       pagination: {},
