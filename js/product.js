@@ -1,7 +1,7 @@
 import { createApp } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.11/vue.esm-browser.js';
 import pagination from './pagination.js';
 
-let productModal = {}; // 定義接近全域變數
+let productModal = {}; 
 
 const app = createApp({
   data() {
