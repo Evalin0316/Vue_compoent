@@ -1,114 +1,6 @@
-import { createApp } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.11/vue.esm-browser.js';
-import pagination from './pagination.js';
-
-
-let productModal = {}; 
-let deleteProductModal ={};
-
-const app = createApp({
-  data() {
-    return {
-      apiUrl: 'https://vue3-course-api.hexschool.io/api',
-      apiPath: 'ear077',
-      products: [],
-      isNew: false,
-      tempProduct: { // 稍後調整資料使用的結構
-        // imagesUrl: [],
-      },
-      pagination: {}
-    }
-  },
-  components: {
-    pagination,
-  },
-  mounted() {
-    const token = document.cookie.replace(/(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, "$1");
-    productModal = new bootstrap.Modal(document.getElementById('productModal'));
-    deleteProductModal = new bootstrap.Modal(document.getElementById('deleteProductModal'));
-
-    if (token === '') {
-      alert('您尚未登入請重新登入。');
-      window.location = 'login.html';
-    }
-
-    axios.defaults.headers.common.Authorization = token;
-    this.getProducts();
-  },
-  methods: {
-    getProducts(page = 1) {
-      const url = `${this.apiUrl}/${this.apiPath}/admin/products?page=${page}`;
-      axios.get(url) // 請求
-        .then((res) => {
-          console.log(res);
-          if (res.data.success) {
-            this.products = res.data.products;
-            this.pagination = res.data.pagination;
-          } else {
-            alert('驗證錯誤'); // 帶入錯誤
-          }
-        })
-    },
-    openModal(isNew, item) {
-      this.isNew = isNew;
-      // Opening Create Modal
-      if (this.isNew === 'create') {
-        this.tempProduct = {
-          // imagesUrl: [],
-        };
-        productModal.show();
-        // Opening Edit Modal
-      } else if (this.isNew === 'edit'){
-        this.tempProduct = {...item};
-        productModal.show();
-        // Opening Delete Modal
-      } else if (this.isNew === 'delete'){
-        this.tempProduct = {...item};
-        deleteProductModal.show();
-      }
-    },
-    updateProduct(tempProduct) {
-      // create a product
-      let url = `${this.apiUrl}/${this.apiPath}/admin/product`;
-      let method = 'post';
-      // When it is not crating a product, switch to edit product API
-      if (!this.isNew) {
-        url = `${this.apiUrl}/${this.apiPath}/admin/product/${tempProduct.id}`;
-        method = 'put';
-      }
-
-      axios[method](url, {data: tempProduct})
-        .then(res=> {
-          if (res.data.success) {
-            this.getProducts();
-            this.$emit('updateProduct');
-            productModal.hide();
-          }
-        })
-    },
-    deleteProduct() {
-      // delete a product
-      let url = `${this.apiUrl}/${this.apiPath}/admin/product/${this.tempProduct.id}`;
-      let method = 'delete';
-      if (!this.isNew) {
-        url = `${this.apiUrl}/${this.apiPath}/admin/product/${this.tempProduct.id}`
-        method = 'put';
-      }
-
-      axios[method](url)
-        .then(res=> {
-          if (res.data.success) {
-            this.getProducts();
-            // 於 "Delete Confirm" 上綁定觸發事件 ‘deleteProduct‘
-            this.$emit('deleteProduct');
-            deleteProductModal.hide();
-          }
-        })
-    }
-  }
-});
-
-app.component('productModal', {
-  template: `<div id="productModal" ref="productModal" class="modal fade" tabindex="-1" aria-labelledby="productModalLabel"
+export default{
+    props: ['tempProduct'],
+    template: `<div id="productModal" ref="productModal" class="modal fade" tabindex="-1" aria-labelledby="productModalLabel"
   aria-hidden="true">
     <div class="modal-dialog modal-xl">
       <div class="modal-content border-0">
@@ -226,7 +118,6 @@ app.component('productModal', {
       </div>
     </div>
   </div>`,
-  props: ['tempProduct'],
   methods: {
     createImages() {
       this.tempProduct.imagesUrl = [
@@ -234,6 +125,4 @@ app.component('productModal', {
       ]
     },
   }
-})
-
-app.mount('#app');
+}
